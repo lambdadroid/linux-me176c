@@ -32,8 +32,10 @@
 #include <linux/io.h>
 #include <linux/gpio.h>
 #include <linux/acpi.h>
-#include <linux/acpi_gpio.h>
+
+#ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
+#endif
 
 #define GTP_CUSTOM_CFG        0
 #define GTP_CHANGE_X2Y        0
@@ -90,7 +92,11 @@ struct goodix_ts_data {
 	struct input_dev  *input_dev;
 	struct hrtimer timer;
 	struct work_struct  work;
+
+#ifdef CONFIG_HAS_EARLYSUSPEND
 	struct early_suspend early_suspend;
+#endif
+
 	s32 irq_is_disable;
 	s32 use_irq;
 	u16 abs_x_max;

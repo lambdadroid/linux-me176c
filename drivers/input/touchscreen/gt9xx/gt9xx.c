@@ -829,7 +829,7 @@ static int gtp_enter_doze(struct goodix_ts_data *ts)
 	gtp_irq_enable(ts);
 	return ret;
 }
-#else  /* No GTP_SLIDE_WAKEUP */
+#elif defined CONFIG_HAS_EARLYSUSPEND  /* No GTP_SLIDE_WAKEUP */
 
 /**
  * gtp_enter_sleep - Enter sleep mode.
@@ -881,6 +881,7 @@ static int gtp_enter_sleep(struct goodix_ts_data *ts)
 }
 #endif
 
+#ifdef CONFIG_HAS_EARLYSUSPEND
 /**
  * gtp_wakeup_sleep - Wakeup from sleep.
  */
@@ -997,6 +998,7 @@ static int gtp_wakeup_sleep(struct goodix_ts_data *ts)
 	dev_err(&client->dev, "GTP wakeup sleep failed.");
 	return ret;
 }
+#endif
 
 #if GTP_DRIVER_SEND_CFG
 static int gtp_get_info(struct goodix_ts_data *ts)
@@ -2287,7 +2289,7 @@ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
 static struct i2c_driver goodix_ts_driver = {
 	.probe      = goodix_ts_probe,
 	.remove     = goodix_ts_remove,
-#ifndef CONFIG_HAS_EARLYSUSPEND
+#ifdef CONFIG_HAS_EARLYSUSPEND
 	.suspend    = goodix_ts_early_suspend,
 	.resume     = goodix_ts_late_resume,
 #endif
