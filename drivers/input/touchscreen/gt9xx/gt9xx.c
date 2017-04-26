@@ -2270,18 +2270,11 @@ static void gtp_esd_check_func(struct work_struct *work)
 
 static const struct i2c_device_id goodix_ts_id[] = {
 	{ GTP_I2C_NAME, 0 },
-	{ "GODX0911", 0 },
 	{ }
 };
 
 static struct acpi_device_id goodix_acpi_match[] = {
-#ifdef CONFIG_MRD7
-	{ "GODX0911", 0 },
-#elif CONFIG_MRD8
-	{ "GODX0911", 0 },
-#else
-	{ "ATML1000", 0 },
-#endif
+	{ MPU_I2C_NAME, 0 },
 	{ },
 };
 MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
