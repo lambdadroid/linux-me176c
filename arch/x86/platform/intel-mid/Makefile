@@ -5,4 +5,4 @@ ifdef CONFIG_X86_INTEL_MID
 obj-$(CONFIG_SFI) += sfi.o device_libs/
 endif
 
-obj-y += device_libs/
+obj-y += spid.o device_libs/
