@@ -114,3 +114,9 @@ all.config
 
 # Kdevelop4
 *.kdev4
+
+# QtCreator
+*.config
+*.includes
+*.creator*
+*.files
