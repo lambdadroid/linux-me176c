@@ -11,7 +11,7 @@
 #ifndef _ASM_X86_SPID_H
 #define _ASM_X86_SPID_H
 
-#include <linux/sfi.h>
+#define SPID_FRU_SIZE	10
 /* size of SPID cmdline : androidboot.spid=vend:cust:manu:plat:prod:hard */
 #define SPID_CMDLINE_SIZE 46
 #define SPID_PARAM_NAME "androidboot.spid="
