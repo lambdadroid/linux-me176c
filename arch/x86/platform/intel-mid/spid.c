@@ -15,7 +15,6 @@
 #include <linux/interrupt.h>
 #include <linux/scatterlist.h>
 #include <linux/sfi.h>
-#include <linux/intel_pmic_gpio.h>
 #include <linux/spi/spi.h>
 #include <linux/i2c.h>
 #include <linux/skbuff.h>
@@ -34,6 +33,7 @@
 #include <linux/acpi.h>
 #include <linux/intel_pidv_acpi.h>
 
+#include <asm/spid.h>
 #include <asm/setup.h>
 #include <asm/mpspec_def.h>
 #include <asm/hw_irq.h>
@@ -43,7 +43,6 @@
 #include <asm/io.h>
 #include <asm/i8259.h>
 #include <asm/intel_scu_ipc.h>
-#include <asm/intel_mid_rpmsg.h>
 #include <asm/apb_timer.h>
 #include <asm/reboot.h>
 #include "intel_mid_weak_decls.h"
@@ -314,6 +313,7 @@ err_sysfs_spid:
 arch_initcall(acpi_spid_init);
 #endif
 
+#ifdef CONFIG_SFI
 /**
  * Check if buffer contains printable character, from SPACE(0x20) to
  * TILDE (0x7E), until \0 or maxlen characters occur.
@@ -406,3 +406,4 @@ err_sfi_sysfs_spid:
 
 	return ret;
 }
+#endif
