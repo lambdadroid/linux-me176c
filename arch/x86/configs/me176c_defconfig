@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 4.9.15 Kernel Configuration
+# Linux/x86_64 4.9.15 Kernel Configuration
 #
 CONFIG_64BIT=y
 CONFIG_X86_64=y
@@ -3214,6 +3214,7 @@ CONFIG_USB_STORAGE_SDDR55=y
 # CONFIG_USBIP_CORE is not set
 # CONFIG_USB_MUSB_HDRC is not set
 CONFIG_USB_DWC3=y
+CONFIG_USB_DWC3_ULPI=y
 # CONFIG_USB_DWC3_HOST is not set
 CONFIG_USB_DWC3_GADGET=y
 # CONFIG_USB_DWC3_DUAL_ROLE is not set
@@ -3346,7 +3347,7 @@ CONFIG_USB_CONFIGFS_F_MIDI=y
 #
 # CONFIG_USB_PD_SINK is not set
 # CONFIG_USB_LED_TRIG is not set
-# CONFIG_USB_ULPI_BUS is not set
+CONFIG_USB_ULPI_BUS=y
 # CONFIG_UWB is not set
 CONFIG_MMC=y
 # CONFIG_MMC_DEBUG is not set
