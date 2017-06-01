@@ -1034,4 +1034,16 @@ config INTEL_CRYSTALCOVE_PWRSRC
 	  This driver does the Crystal Cove PMIC Power source detection.
 	  If unsure, say N.
 
+config INTEL_REBOOT_TARGET
+	bool "Intel Reboot Target"
+	---help---
+	  This driver provides a generic implementation for reboot target setting at
+	  reset time.
+
+config INTEL_REBOOT_TARGET_UEFI
+	tristate "Intel Target Mode UEFI implementation"
+	depends on INTEL_REBOOT_TARGET && EFI && !MID_OSNIB_ILB
+	---help---
+	  Reboot Target UEFI based implementation
+
 endif # X86_PLATFORM_DEVICES

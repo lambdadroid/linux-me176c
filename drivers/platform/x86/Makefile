@@ -73,3 +73,6 @@ obj-$(CONFIG_INTEL_TELEMETRY)	+= intel_telemetry_core.o \
 obj-$(CONFIG_INTEL_PMC_CORE)    += intel_pmc_core.o
 
 obj-$(CONFIG_INTEL_CRYSTALCOVE_PWRSRC)  += intel_crystalcove_pwrsrc.o
+
+obj-$(CONFIG_INTEL_REBOOT_TARGET)	+= reboot_target.o
+obj-$(CONFIG_INTEL_REBOOT_TARGET_UEFI) += reboot_target_uefi.o
