@@ -13,6 +13,7 @@
 #include <linux/device.h>
 #include <linux/cdev.h>
 #include <linux/iio/types.h>
+#include <linux/iio/consumer.h>
 #include <linux/of.h>
 /* IIO TODO LIST */
 /*
@@ -396,6 +397,9 @@ struct iio_info {
 			int *vals,
 			int *val_len,
 			long mask);
+
+	int (*read_all_raw)(struct iio_channel *chan,
+			int *val);
 
 	int (*write_raw)(struct iio_dev *indio_dev,
 			 struct iio_chan_spec const *chan,

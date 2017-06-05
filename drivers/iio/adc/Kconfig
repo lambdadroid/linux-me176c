@@ -585,4 +585,8 @@ config XILINX_XADC
 	  The driver can also be build as a module. If so, the module will be called
 	  xilinx-xadc.
 
+config CRYSTALCOVE_GPADC
+	tristate "Intel Merrifield Crystal Cove GPADC Driver"
+	depends on INTEL_MID_PMIC_COMPAT
+
 endmenu

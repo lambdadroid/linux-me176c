@@ -271,4 +271,6 @@ int iio_read_channel_scale(struct iio_channel *chan, int *val,
 int iio_convert_raw_to_processed(struct iio_channel *chan, int raw,
 	int *processed, unsigned int scale);
 
+int iio_read_channel_all_raw(struct iio_channel *chan, int *val);
+int iio_channel_get_num(const struct iio_channel *chan);
 #endif

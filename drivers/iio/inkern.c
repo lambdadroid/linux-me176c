@@ -525,6 +525,20 @@ void devm_iio_channel_release_all(struct device *dev,
 }
 EXPORT_SYMBOL_GPL(devm_iio_channel_release_all);
 
+int iio_channel_get_num(const struct iio_channel *chan)
+{
+	int num = 0;
+
+	if (chan == NULL)
+		return -ENODEV;
+
+	while (chan[num].indio_dev)
+		num++;
+
+	return num;
+}
+EXPORT_SYMBOL_GPL(iio_channel_get_num);
+
 static int iio_channel_read(struct iio_channel *chan, int *val, int *val2,
 	enum iio_chan_info_enum info)
 {
@@ -587,6 +601,24 @@ err_unlock:
 	return ret;
 }
 EXPORT_SYMBOL_GPL(iio_read_channel_average_raw);
+
+int iio_read_channel_all_raw(struct iio_channel *chan, int *val)
+{
+	int ret;
+
+	mutex_lock(&chan->indio_dev->info_exist_lock);
+	if (chan->indio_dev->info == NULL) {
+		ret = -ENODEV;
+		goto err_unlock;
+	}
+
+	ret = chan->indio_dev->info->read_all_raw(chan, val);
+err_unlock:
+	mutex_unlock(&chan->indio_dev->info_exist_lock);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(iio_read_channel_all_raw);
 
 static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
 	int raw, int *processed, unsigned int scale)
