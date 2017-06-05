@@ -364,7 +364,7 @@ config INTEL_BXT_PMIC_THERMAL
 
 config INTEL_BYT_THERMAL
 	tristate "Thermal driver for Intel Baytrail platform"
-	depends on THERMAL && IIO && CRYSTAL_COVE
+	depends on THERMAL && IIO && INTEL_MID_PMIC_COMPAT
 	help
 	  Say Y here to enable thermal driver on Intel Baytrail platform.
 
