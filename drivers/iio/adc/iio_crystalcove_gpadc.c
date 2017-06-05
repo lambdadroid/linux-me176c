@@ -29,8 +29,8 @@
 #include <linux/delay.h>
 #include <linux/interrupt.h>
 #include <linux/device.h>
+#include <linux/platform_device.h>
 #include <linux/sched.h>
-#include <linux/intel_mid_pm.h>
 #include <linux/rpmsg.h>
 #include <linux/debugfs.h>
 #include <linux/mfd/intel_mid_pmic.h>
