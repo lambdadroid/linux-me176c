@@ -1197,7 +1197,7 @@ static inline bool dwc3_is_usb31(struct dwc3 *dwc)
 
 bool dwc3_has_imod(struct dwc3 *dwc);
 
-#if IS_ENABLED(CONFIG_USB_DWC3_HOST) || IS_ENABLED(CONFIG_USB_DWC3_DUAL_ROLE)
+#if IS_ENABLED(CONFIG_USB_DWC3_HOST)
 int dwc3_host_init(struct dwc3 *dwc);
 void dwc3_host_exit(struct dwc3 *dwc);
 #else
