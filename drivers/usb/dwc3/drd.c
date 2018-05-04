@@ -52,11 +52,16 @@ static int dwc3_drd_notifier(struct notifier_block *nb,
 int dwc3_drd_init(struct dwc3 *dwc)
 {
 	int ret;
+	const char *name;
 
 	if (dwc->dev->of_node) {
 		if (of_property_read_bool(dwc->dev->of_node, "extcon"))
 			dwc->edev = extcon_get_edev_by_phandle(dwc->dev, 0);
+	} else if (!device_property_read_string(dwc->dev, "extcon-name", &name)) {
+		dwc->edev = extcon_get_extcon_dev(name);
+	}
 
+	if (dwc->edev) {
 		if (IS_ERR(dwc->edev))
 			return PTR_ERR(dwc->edev);
 
