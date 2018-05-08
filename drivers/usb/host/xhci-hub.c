@@ -586,6 +586,10 @@ static void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd,
 	__le32 __iomem *addr;
 	u32 temp;
 
+	if (index == 5) {
+		on = false; // Keep HSIC port disabled
+	}
+
 	addr = xhci_get_port_io_addr(hcd, index);
 	temp = readl(addr);
 	temp = xhci_port_state_to_neutral(temp);
