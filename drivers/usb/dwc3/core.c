@@ -1321,6 +1321,9 @@ static int dwc3_suspend_common(struct dwc3 *dwc)
 {
 	unsigned long	flags;
 
+	if (pm_runtime_suspended(dwc->dev))
+		return 0;
+
 	switch (dwc->dr_mode) {
 	case USB_DR_MODE_PERIPHERAL:
 	case USB_DR_MODE_OTG:
@@ -1470,15 +1473,16 @@ static int dwc3_resume(struct device *dev)
 
 	pinctrl_pm_select_default_state(dev);
 
+	pm_runtime_disable(dev);
 	ret = dwc3_resume_common(dwc);
 	if (ret)
-		return ret;
+		goto err;
 
-	pm_runtime_disable(dev);
 	pm_runtime_set_active(dev);
-	pm_runtime_enable(dev);
 
-	return 0;
+err:
+	pm_runtime_enable(dev);
+	return ret;
 }
 #endif /* CONFIG_PM_SLEEP */
 
