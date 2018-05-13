@@ -1125,9 +1125,11 @@ static void cmos_wake_setup(struct device *dev)
 	if (acpi_disabled)
 		return;
 
-	rtc_wake_setup(dev);
-	acpi_rtc_info.wake_on = rtc_wake_on;
-	acpi_rtc_info.wake_off = rtc_wake_off;
+	if (!acpi_gbl_reduced_hardware) {
+		rtc_wake_setup(dev);
+		acpi_rtc_info.wake_on = rtc_wake_on;
+		acpi_rtc_info.wake_off = rtc_wake_off;
+	}
 
 	/* workaround bug in some ACPI tables */
 	if (acpi_gbl_FADT.month_alarm && !acpi_gbl_FADT.day_alarm) {
