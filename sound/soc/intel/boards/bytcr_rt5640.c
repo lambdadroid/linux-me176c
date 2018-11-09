@@ -54,6 +54,7 @@ enum {
 	BYT_RT5640_JD_SRC_GPIO2		= (RT5640_JD_SRC_GPIO2 << 4),
 	BYT_RT5640_JD_SRC_GPIO3		= (RT5640_JD_SRC_GPIO3 << 4),
 	BYT_RT5640_JD_SRC_GPIO4		= (RT5640_JD_SRC_GPIO4 << 4),
+	BYT_RT5640_JD_SRC_SOC_GPIO
 };
 
 enum {
@@ -436,7 +437,8 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
 		},
 		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
 						 BYT_RT5640_MCLK_EN |
-						 BYT_RT5640_SSP0_AIF1),
+						 BYT_RT5640_SSP0_AIF1 | BYT_RT5640_JD_SRC_SOC_GPIO
+					 | RT5640_MIC1_OVTH_2000UA | RT5640_MIC_OVCD_SF_0P5),
 	},
 	{
 		.matches = {

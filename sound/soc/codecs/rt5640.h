@@ -2150,6 +2150,8 @@ struct rt5640_priv {
 	struct work_struct jack_work;
 	struct snd_soc_jack *jack;
 	unsigned int jd_src;
+	struct gpio_desc *jd_gpio;
+    int jd_gpio_irq;
 	bool jd_inverted;
 	unsigned int ovcd_th;
 	unsigned int ovcd_sf;

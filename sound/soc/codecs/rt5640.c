@@ -2160,6 +2160,15 @@ static bool rt5640_jack_inserted(struct snd_soc_component *component)
 	struct rt5640_priv *rt5640 = snd_soc_component_get_drvdata(component);
 	int val;
 
+	if (rt5640->jd_gpio) {
+		val = gpiod_get_value_cansleep(rt5640->jd_gpio);
+		dev_err(component->dev, "GPIO Value: %d (inverted %d)", val, rt5640->jd_inverted);
+		if (rt5640->jd_inverted)
+			return !val;
+		else
+			return val;
+	}
+
 	val = snd_soc_component_read32(component, RT5640_INT_IRQ_ST);
 	dev_dbg(component->dev, "irq status %#04x\n", val);
 
@@ -2225,7 +2234,7 @@ static void rt5640_button_press_work(struct work_struct *work)
 	}
 
 	if (rt5640->pressed && !rt5640->press_reported) {
-		dev_dbg(component->dev, "headset button press\n");
+		dev_err(component->dev, "headset button press\n");
 		snd_soc_jack_report(rt5640->jack, SND_JACK_BTN_0,
 				    SND_JACK_BTN_0);
 		rt5640->press_reported = true;
@@ -2233,7 +2242,7 @@ static void rt5640_button_press_work(struct work_struct *work)
 
 	if (rt5640->release_count >= BP_THRESHOLD) {
 		if (rt5640->press_reported) {
-			dev_dbg(component->dev, "headset button release\n");
+			dev_err(component->dev, "headset button release\n");
 			snd_soc_jack_report(rt5640->jack, 0, SND_JACK_BTN_0);
 		}
 		/* Re-enable OVCD IRQ to detect next press */
@@ -2271,13 +2280,13 @@ static int rt5640_detect_headset(struct snd_soc_component *component)
 			 * 2nd ring contact and the ground, so a TRS connector
 			 * without a mic contact and thus plain headphones.
 			 */
-			dev_dbg(component->dev, "jack mic-gnd shorted\n");
+			dev_err(component->dev, "jack mic-gnd shorted\n");
 			headset_count = 0;
 			headphone_count++;
 			if (headphone_count == JACK_DETECT_COUNT)
 				return SND_JACK_HEADPHONE;
 		} else {
-			dev_dbg(component->dev, "jack mic-gnd open\n");
+			dev_err(component->dev, "jack mic-gnd open\n");
 			headphone_count = 0;
 			headset_count++;
 			if (headset_count == JACK_DETECT_COUNT)
@@ -2296,6 +2305,8 @@ static void rt5640_jack_work(struct work_struct *work)
 	struct snd_soc_component *component = rt5640->component;
 	int status;
 
+	dev_err(component->dev, "IRQ!!!\n");
+
 	if (!rt5640_jack_inserted(component)) {
 		/* Jack removed, or spurious IRQ? */
 		if (rt5640->jack->status & SND_JACK_HEADPHONE) {
@@ -2306,7 +2317,7 @@ static void rt5640_jack_work(struct work_struct *work)
 			}
 			snd_soc_jack_report(rt5640->jack, 0,
 					    SND_JACK_HEADSET | SND_JACK_BTN_0);
-			dev_dbg(component->dev, "jack unplugged\n");
+			dev_err(component->dev, "jack unplugged\n");
 		}
 	} else if (!(rt5640->jack->status & SND_JACK_HEADPHONE)) {
 		/* Jack inserted */
@@ -2320,10 +2331,10 @@ static void rt5640_jack_work(struct work_struct *work)
 			/* No more need for overcurrent detect. */
 			rt5640_disable_micbias1_for_ovcd(component);
 		}
-		dev_dbg(component->dev, "detect status %#02x\n", status);
+		dev_err(component->dev, "detect status %#02x\n", status);
 		snd_soc_jack_report(rt5640->jack, status, SND_JACK_HEADSET);
 	} else if (rt5640->ovcd_irq_enabled && rt5640_micbias1_ovcd(component)) {
-		dev_dbg(component->dev, "OVCD IRQ\n");
+		dev_err(component->dev, "OVCD IRQ\n");
 
 		/*
 		 * The ovcd IRQ keeps firing while the button is pressed, so
@@ -2370,9 +2381,11 @@ static void rt5640_enable_jack_detect(struct snd_soc_component *component,
 {
 	struct rt5640_priv *rt5640 = snd_soc_component_get_drvdata(component);
 
+#if 0
 	/* Select JD-source */
 	snd_soc_component_update_bits(component, RT5640_JD_CTRL,
 		RT5640_JD_MASK, rt5640->jd_src);
+#endif
 
 	/* Selecting GPIO01 as an interrupt */
 	snd_soc_component_update_bits(component, RT5640_GPIO_CTRL1,
@@ -2407,6 +2420,7 @@ static void rt5640_enable_jack_detect(struct snd_soc_component *component,
 	snd_soc_component_update_bits(component, RT5640_IRQ_CTRL2,
 		RT5640_MB1_OC_STKY_MASK, RT5640_MB1_OC_STKY_EN);
 
+#if 0
 	/*
 	 * All IRQs get or-ed together, so we need the jack IRQ to report 0
 	 * when a jack is inserted so that the OVCD IRQ then toggles the IRQ
@@ -2419,6 +2433,13 @@ static void rt5640_enable_jack_detect(struct snd_soc_component *component,
 	else
 		snd_soc_component_write(component, RT5640_IRQ_CTRL1,
 					RT5640_IRQ_JD_NOR | RT5640_JD_P_INV);
+#else
+	snd_soc_component_update_bits(component, RT5640_JD_CTRL,
+		RT5640_JD_MASK, RT5640_JD_DIS);
+	snd_soc_component_write(component, RT5640_IRQ_CTRL1,
+				RT5640_IRQ_JD_BP);
+#endif
+
 
 	rt5640->jack = jack;
 	if (rt5640->jack->status & SND_JACK_MICROPHONE) {
@@ -2427,6 +2448,9 @@ static void rt5640_enable_jack_detect(struct snd_soc_component *component,
 	}
 
 	enable_irq(rt5640->irq);
+	if (rt5640->jd_gpio)
+		enable_irq(rt5640->jd_gpio_irq);
+
 	/* sync initial jack state */
 	queue_work(system_long_wq, &rt5640->jack_work);
 }
@@ -2436,6 +2460,8 @@ static void rt5640_disable_jack_detect(struct snd_soc_component *component)
 	struct rt5640_priv *rt5640 = snd_soc_component_get_drvdata(component);
 
 	disable_irq(rt5640->irq);
+	if (rt5640->jd_gpio)
+		disable_irq(rt5640->jd_gpio_irq);
 	rt5640_cancel_work(rt5640);
 
 	if (rt5640->jack->status & SND_JACK_MICROPHONE) {
@@ -2763,6 +2789,13 @@ static int rt5640_parse_dt(struct rt5640_priv *rt5640, struct device_node *np)
 	return 0;
 }
 
+static const struct acpi_gpio_params soc_gpios = { 2, 0, false };
+
+static const struct acpi_gpio_mapping rt5640_acpi_gpios[] = {
+	{ "soc-gpios", &soc_gpios, 1 },
+	{ },
+};
+
 static int rt5640_i2c_probe(struct i2c_client *i2c,
 		    const struct i2c_device_id *id)
 {
@@ -2838,9 +2871,38 @@ static int rt5640_i2c_probe(struct i2c_client *i2c,
 		/* Gets re-enabled by rt5640_set_jack() */
 		disable_irq(rt5640->irq);
 	} else {
-		dev_warn(&i2c->dev, "Failed to reguest IRQ %d: %d\n",
+		dev_warn(&i2c->dev, "Failed to request IRQ %d: %d\n",
 			 rt5640->irq, ret);
 		rt5640->irq = -ENXIO;
+	}
+
+	ret = acpi_dev_add_driver_gpios(ACPI_COMPANION(&i2c->dev), rt5640_acpi_gpios);
+	if (ret)
+		return ret;
+
+	rt5640->jd_gpio = devm_gpiod_get(&i2c->dev, "soc", GPIOD_ASIS);
+	if (!IS_ERR(rt5640->jd_gpio)) {
+		rt5640->jd_gpio_irq = gpiod_to_irq(rt5640->jd_gpio);
+		if (rt5640->jd_gpio_irq < 0) {
+			dev_warn(&i2c->dev, "Failed to get jack detect GPIO IRQ: %d\n",
+				rt5640->jd_gpio_irq);
+		}
+
+		dev_err(&i2c->dev, "GPIO IRQ: %d\n", rt5640->jd_gpio_irq);
+
+		ret = devm_request_irq(&i2c->dev, rt5640->jd_gpio_irq, rt5640_irq,
+				       IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING
+				       | IRQF_ONESHOT, "rt5640-jd-gpio", rt5640);
+		if (ret == 0) {
+			/* Gets re-enabled by rt5640_set_jack() */
+			disable_irq(rt5640->jd_gpio_irq);
+		} else {
+			dev_warn(&i2c->dev, "Failed to request jack detect GPIO IRQ: %d: %d\n",
+				 rt5640->jd_gpio_irq, ret);
+			rt5640->jd_gpio_irq = -ENXIO;
+		}
+	} else {
+		dev_err(&i2c->dev, "GPIO ERR %ld\n", PTR_ERR(rt5640->jd_gpio));
 	}
 
 	return devm_snd_soc_register_component(&i2c->dev,
